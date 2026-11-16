@@ -63,6 +63,35 @@ export function Bibliography() {
           Working Group I.{" "}
           <a href="https://doi.org/10.1017/9781009157896.007">https://doi.org/10.1017/9781009157896.007</a>.
         </li>
+        <li id="bib-gulev">
+          <span className="bib-kind">{SOURCE_LABEL.gulev}.</span> Gulev, S. K. et al. (2021). Chapter 2: Changing
+          State of the Climate System. In Climate Change 2021: The Physical Science Basis. Contribution of Working
+          Group I. Cambridge University Press. pp. 287–422.{" "}
+          <a href="https://doi.org/10.1017/9781009157896.004">https://doi.org/10.1017/9781009157896.004</a>. States
+          285.5 ± 2.1 ppm CO₂ in 1850.
+        </li>
+        <li id="bib-annex">
+          <span className="bib-kind">{SOURCE_LABEL.annex}.</span> IPCC (2021). Annex III: Tables of Historical and
+          Projected Well-mixed Greenhouse Gas Mixing Ratios and Effective Radiative Forcing of All Climate Forcers
+          [Dentener, F. J., B. Hall, and C. Smith (eds.)]. Climate Change 2021: The Physical Science Basis.
+          Contribution of Working Group I. pp. 2139–2152.{" "}
+          <a href="https://doi.org/10.1017/9781009157896.017">https://doi.org/10.1017/9781009157896.017</a>. Table
+          AIII.1a lists 1850 CO₂ as 285.5 ppm, with a stated uncertainty of 2.1 ppm.
+        </li>
+        <li id="bib-spm">
+          <span className="bib-kind">{SOURCE_LABEL.spm}.</span> IPCC (2021). Summary for Policymakers. In Climate
+          Change 2021: The Physical Science Basis. Contribution of Working Group I. Cambridge University Press. pp.
+          3–32.{" "}
+          <a href="https://doi.org/10.1017/9781009157896.001">https://doi.org/10.1017/9781009157896.001</a>. Uses
+          1850–1900 as an approximation for pre-industrial conditions.
+        </li>
+        <li id="bib-chen">
+          <span className="bib-kind">{SOURCE_LABEL.chen}.</span> Chen, D. et al. (2021). Chapter 1: Framing,
+          Context, and Methods. In Climate Change 2021: The Physical Science Basis. Contribution of Working Group I.
+          Cambridge University Press. pp. 147–286.{" "}
+          <a href="https://doi.org/10.1017/9781009157896.003">https://doi.org/10.1017/9781009157896.003</a>. Uses
+          1850–1900 as the baseline approximating pre-industrial levels.
+        </li>
         <li id="bib-ice">
           <span className="bib-kind">{SOURCE_LABEL.ice}.</span> Etheridge, D. M. et al. (1996). Natural and
           anthropogenic changes in atmospheric CO₂ over the last 1000 years from air in Antarctic ice and firn.

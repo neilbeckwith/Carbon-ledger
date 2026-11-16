@@ -320,6 +320,14 @@ export function LedgerApp() {
           <p className="cite-line">
             <Cite cite={CITE.atmosphere} /> <Cite cite={CITE.preindustrial} />
           </p>
+          <p className="unit-line">
+            Reported atmospheric CO₂ in 1850: 285.5 ± 2.1 ppm. <SourceMark id="gulev" />{" "}
+            <SourceMark id="annex" />
+          </p>
+          <p className="unit-line">
+            IPCC AR6 uses 1850–1900 as the pre-industrial baseline. <SourceMark id="spm" />{" "}
+            <SourceMark id="chen" />
+          </p>
         </div>
 
         <div className="rates" aria-label="Tonnes of CO₂ each second">
