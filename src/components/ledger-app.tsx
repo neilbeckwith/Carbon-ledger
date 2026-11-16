@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Bibliography, Cite, ResidualLabel, SourceMark, Sourcing } from "@/components/citations";
 import { CyclePlate } from "@/components/cycle-plate";
 import { KeelingChart } from "@/components/keeling-chart";
 import {
@@ -44,6 +45,53 @@ import {
   type NodeId,
   type TickerId,
 } from "@/lib/budget";
+import { CITE, fluxSourcing, rowSourcing, type FluxSourcing } from "@/lib/sources";
+
+function tickerSourcing(id: TickerId): FluxSourcing {
+  switch (id) {
+    case "net":
+      return CITE.airborne;
+    case "fossil":
+      return CITE.fossil;
+    case "luc":
+      return CITE.luc;
+    case "ocean":
+      return CITE.ocean;
+    case "land":
+    case "ag":
+      return "residual";
+    default: {
+      const exhaustive: never = id;
+      return exhaustive;
+    }
+  }
+}
+
+/** Notes for these rows also state figures outside the supplied mapping, so the marker stays on the row. */
+const DETAIL_CITE_ON_ROW_ONLY = new Set(["coal", "oil", "gas", "cement", "row-ocean"]);
+
+function detailSourcing(rowId: string | null, fluxId: string | null): FluxSourcing | null {
+  if (rowId && DETAIL_CITE_ON_ROW_ONLY.has(rowId)) return null;
+  if (rowId) {
+    const fromRow = rowSourcing(rowId);
+    if (fromRow) return fromRow;
+  }
+  if (fluxId) return fluxSourcing(fluxId);
+  return null;
+}
+
+function RowMark({ id }: { id: string }) {
+  const sourcing = rowSourcing(id);
+  if (sourcing === "residual") return <ResidualLabel />;
+  if (sourcing) return <SourceMark id={sourcing.source} />;
+  return null;
+}
+
+function FluxMark({ id }: { id: string }) {
+  const sourcing = fluxSourcing(id);
+  if (!sourcing || sourcing === "residual") return null;
+  return <SourceMark id={sourcing.source} />;
+}
 
 const FILTERS: { id: FilterId; label: string }[] = [
   { id: "net", label: "Net budget" },
@@ -117,6 +165,9 @@ function Rows({
               <span className="cell-title">{row.title}</span>
               <span className="cell-meta">
                 {kindLabel(row.kinds)} · {CERTAINTY_LABEL[row.certainty]}
+              </span>
+              <span className="cell-cite">
+                <RowMark id={row.id} />
               </span>
             </span>
             <span className="cell-num">
@@ -221,6 +272,9 @@ export function LedgerApp() {
           <p className="ticker-kicker">{ticker.verb}</p>
           <LiveTonnes perYear={ticker.gtCO2} sink={ticker.id === "ocean" || ticker.id === "land" || ticker.id === "ag"} />
           <p className="unit-line">tonnes of CO₂ · 2026 rates, spread evenly across the year</p>
+          <p className="cite-line">
+            <Sourcing sourcing={tickerSourcing(ticker.id)} />
+          </p>
           <div className="chips" role="group" aria-label="Which running total">
             {TICKERS.map((item) => (
               <button
@@ -241,21 +295,30 @@ export function LedgerApp() {
           <div className="ppm-block">
             <div>
               <div className="ppm-value">{formatPpm(ppm)}</div>
-              <span className="ppm-label">ppm · Mauna Loa, reconstructed</span>
+              <span className="ppm-label">
+                ppm · Mauna Loa, reconstructed <SourceMark id="noaa" />
+              </span>
             </div>
             <div>
               <div className="ppm-value">{formatPpm(globalPpm)}</div>
-              <span className="ppm-label">ppm · global mean, for the mass</span>
+              <span className="ppm-label">
+                ppm · global mean, for the mass <SourceMark id="noaa" />
+              </span>
             </div>
             <div>
               <div className="ppm-value">{formatStock(atmosphereGtC(now))}</div>
-              <span className="ppm-label">Gt C in the atmosphere</span>
+              <span className="ppm-label">
+                Gt C in the atmosphere <SourceMark id="noaa" />
+              </span>
             </div>
           </div>
           <p className="unit-line">
             {formatPpm(abovePreindustrial(globalPpm) * 100, 0)}% above {PREINDUSTRIAL_PPM} ppm in 1750.
             Right now the station trace is moving {slope >= 0 ? "+" : ""}
             {formatPpm(slope, 2)} ppm/day, mostly the seasonal breath of the land, not the fossil trend.
+          </p>
+          <p className="cite-line">
+            <Cite cite={CITE.atmosphere} /> <Cite cite={CITE.preindustrial} />
           </p>
         </div>
 
@@ -317,18 +380,38 @@ export function LedgerApp() {
             on={tickerId === "net"}
             onClick={() => setTickerId("net")}
           />
+          <ul className="cite-list">
+            <li>
+              Fossil & cement — <Cite cite={CITE.fossil} />
+            </li>
+            <li>
+              Land-use change — <Cite cite={CITE.luc} />
+            </li>
+            <li>
+              Ocean — <Cite cite={CITE.ocean} />
+            </li>
+            <li>
+              Land ecosystems — <ResidualLabel />
+            </li>
+            <li>
+              Cropland drawdown — <ResidualLabel />
+            </li>
+            <li>
+              Stays in the air — <Cite cite={CITE.airborne} />
+            </li>
+          </ul>
         </div>
       </section>
 
       <section className="section" aria-label="Where the emissions go">
         <h2>Where this year's CO₂ goes</h2>
         <p className="section-note">
-          Of {formatBooks(SOURCES_GTCO2)} Gt CO₂ emitted, {Math.round(airShare)}% stays airborne,{" "}
-          {Math.round(oceanShare)}% enters the ocean, and {Math.round(landShare)}% is the land residual.
-          Cropland drawdown, at {formatBooks(AG_DRAW_GTC)} Gt C/yr, is about{" "}
+          Of {formatBooks(SOURCES_GTCO2)} Gt CO₂ emitted <Cite cite={CITE.total} />, {Math.round(airShare)}% stays
+          airborne, {Math.round(oceanShare)}% enters the ocean, and {Math.round(landShare)}% is the land residual{" "}
+          <Cite cite={CITE.partition} />. Cropland drawdown, at {formatBooks(AG_DRAW_GTC)} Gt C/yr, is about{" "}
           {formatBooks((AG_DRAW_GTCO2 / SOURCES_GTCO2) * 100)}% of emissions —{" "}
           {formatRate(tonnesPerSecond(AG_DRAW_GTCO2))} tonnes a second, against{" "}
-          {formatRate(tonnesPerSecond(FOSSIL_GTCO2))} from fossil carbon.
+          {formatRate(tonnesPerSecond(FOSSIL_GTCO2))} from fossil carbon. <ResidualLabel />
         </p>
         <div
           className="bar"
@@ -341,13 +424,13 @@ export function LedgerApp() {
         </div>
         <div className="bar-legend">
           <span>
-            <i className="swatch seg-air" /> Airborne {formatBooks(AIRBORNE_GTCO2)}
+            <i className="swatch seg-air" /> Airborne {formatBooks(AIRBORNE_GTCO2)} <SourceMark id="gcp" />
           </span>
           <span>
-            <i className="swatch seg-ocean" /> Ocean {formatBooks(OCEAN_GTCO2)}
+            <i className="swatch seg-ocean" /> Ocean {formatBooks(OCEAN_GTCO2)} <SourceMark id="gcp" />
           </span>
           <span>
-            <i className="swatch seg-land" /> Land {formatBooks(LAND_GTCO2)}
+            <i className="swatch seg-land" /> Land {formatBooks(LAND_GTCO2)} <SourceMark id="gcp" />
           </span>
         </div>
         <ul className="regions">
@@ -362,7 +445,7 @@ export function LedgerApp() {
           ))}
         </ul>
         <p className="section-note">
-          Fossil CO₂ direction for 2026. These are changes, not shares of the total.
+          Fossil CO₂ direction for 2026. These are changes, not shares of the total. <Cite cite={CITE.countries} />
         </p>
       </section>
 
@@ -403,6 +486,11 @@ export function LedgerApp() {
             </p>
             <h3>{detail.title}</h3>
             <p>{detail.note}</p>
+            {detailSourcing(rowId, fluxId) ? (
+              <p className="cite-line">
+                <Sourcing sourcing={detailSourcing(rowId, fluxId)} />
+              </p>
+            ) : null}
             <p className="nums">
               {detail.gtC >= 20 ? formatGross(detail.gtC) : formatBooks(detail.gtC)} Gt C/yr ·{" "}
               {formatBooks(detail.gtCO2)} Gt CO₂/yr · {formatRate(tonnesPerSecond(detail.gtCO2))} t CO₂/s
@@ -418,6 +506,9 @@ export function LedgerApp() {
           underneath and is not added in.
         </p>
         <h3 className="subhead">Into the air</h3>
+        <p className="cite-line">
+          Fossil & cement rows — <Cite cite={CITE.fossil} /> Land-use rows — <Cite cite={CITE.luc} />
+        </p>
         <div className="ledger">
           <div className="ledger-head">
             <span>Process</span>
@@ -432,6 +523,10 @@ export function LedgerApp() {
           </div>
         </div>
         <h3 className="subhead">Out of the air, and what stays</h3>
+        <p className="cite-line">
+          Ocean — <Cite cite={CITE.ocean} /> Forest, soil, and cropland — <ResidualLabel /> Left in the atmosphere —{" "}
+          <Cite cite={CITE.airborne} />
+        </p>
         <div className="ledger">
           <div className="ledger-head">
             <span>Process</span>
@@ -444,6 +539,9 @@ export function LedgerApp() {
             <span className="cell-name">
               <span className="cell-title">Left in the atmosphere</span>
               <span className="cell-meta">Reported · +2.2 ppm in 2026</span>
+              <span className="cell-cite">
+                <SourceMark id="gcp" />
+              </span>
             </span>
             <span className="cell-num">
               {formatBooks(gtCFromCO2(AIRBORNE_GTCO2))}
@@ -465,6 +563,11 @@ export function LedgerApp() {
         </div>
 
         <h3 className="subhead">Fast cycle — do not add these to the books</h3>
+        <p className="cite-line">
+          Photosynthesis, plant respiration, soil respiration, litterfall, wildfire, and harvest —{" "}
+          <Cite cite={CITE.terrestrial} /> Air–sea invasion and evasion, the biological pump and remineralization,
+          and the solubility pump and upwelling — <Cite cite={CITE.oceanGross} />
+        </p>
         <div className="ledger">
           {grossFluxes.map((flux) => (
             <button
@@ -478,6 +581,9 @@ export function LedgerApp() {
                 <span className="cell-title">{flux.title}</span>
                 <span className="cell-meta">
                   {kindLabel(flux.kinds)} · {CERTAINTY_LABEL[flux.certainty]}
+                </span>
+                <span className="cell-cite">
+                  <FluxMark id={flux.id} />
                 </span>
               </span>
               <span className="cell-num">
@@ -497,6 +603,9 @@ export function LedgerApp() {
         </div>
 
         <h3 className="subhead">Slow geology</h3>
+        <p className="cite-line">
+          <Cite cite={CITE.geology} />
+        </p>
         <div className="ledger">
           {slowFluxes.map((flux) => (
             <button
@@ -513,6 +622,9 @@ export function LedgerApp() {
                 <span className="cell-title">{flux.title}</span>
                 <span className="cell-meta">
                   {kindLabel(flux.kinds)} · {CERTAINTY_LABEL[flux.certainty]}
+                </span>
+                <span className="cell-cite">
+                  <FluxMark id={flux.id} />
                 </span>
               </span>
               <span className="cell-num">
@@ -536,33 +648,36 @@ export function LedgerApp() {
         <h2>Since the record began</h2>
         <p className="section-note">
           Rounded Mauna Loa annual means, 1959–2025. Context only. The live figure above is the daily
-          reconstruction, anchored at 428.69 ppm on 14 Nov 2026.
+          reconstruction, anchored at 428.69 ppm on 14 Nov 2026. <Cite cite={CITE.atmosphere} />
         </p>
         <KeelingChart />
       </section>
 
       <footer className="methods">
         <p>
-          <strong>Not a live sensor.</strong> Mauna Loa publishes a daily mean. Between reports the ppm trace
-          advances by a seasonal curve fit to May, September, and the November rise, plus the 2.2 ppm/yr
-          trend. The tonne counters integrate the 2026 annual rates. They do not know whether this particular
-          second was a power-plant ramp or a quiet night.
+          <strong>Not a live sensor.</strong> Mauna Loa publishes a daily mean <Cite cite={CITE.atmosphere} />.
+          Between reports the ppm trace advances by a seasonal curve fit to May, September, and the November
+          rise, plus the 2.2 ppm/yr trend. The tonne counters integrate the 2026 annual rates. They do not know
+          whether this particular second was a power-plant ramp or a quiet night.
         </p>
         <p>
           <strong>Books.</strong> Global Carbon Budget 2026, preliminary (10 Nov 2026): fossil and cement 38.2
-          Gt CO₂, land use 5.1, airborne gain 2.2 ppm, annual mean 427.7 ppm. Ocean is held at the 2025 sink,
-          3.2 Gt C. Land is the residual, so it also absorbs the still-unpublished budget imbalance. Anchor
-          concentration: NOAA Mauna Loa daily mean, 14 Nov 2026, 428.69 ppm. One ppm of the global mean is
-          taken as 2.124 Gt C.
+          Gt CO₂ <Cite cite={CITE.fossil} />, land use 5.1 <Cite cite={CITE.luc} />, airborne gain 2.2 ppm, annual
+          mean 427.7 ppm. Ocean is held at the 2025 sink, 3.2 Gt C <Cite cite={CITE.ocean} />. Land is the
+          residual, so it also absorbs the still-unpublished budget imbalance. Anchor concentration: NOAA Mauna
+          Loa daily mean, 14 Nov 2026, 428.69 ppm <Cite cite={CITE.atmosphere} />. One ppm of the global mean is
+          taken as 2.124 Gt C <SourceMark id="noaa" />.
         </p>
         <p>
           <strong>Splits.</strong> Coal versus gas, and the three pieces of land use, are partitions of
           reported totals. Cropland drawdown is a working {AG_DRAW_LOW_GTC}–{AG_DRAW_HIGH_GTC} Gt C/yr range
           with {AG_DRAW_GTC} Gt C/yr drawn on the plate, taken out of the land residual rather than added on
-          top. Fast-cycle arrows and stocks are IPCC AR6 orders of magnitude, rounded. The gross air–sea pair
-          is set so its difference equals the ocean sink used here.
+          top. <ResidualLabel /> Fast-cycle arrows and stocks are IPCC AR6 orders of magnitude, rounded.{" "}
+          <Cite cite={CITE.terrestrial} /> <Cite cite={CITE.oceanGross} /> <Cite cite={CITE.geology} /> The gross
+          air–sea pair is set so its difference equals the ocean sink used here.
         </p>
       </footer>
+      <Bibliography />
     </main>
   );
 }
