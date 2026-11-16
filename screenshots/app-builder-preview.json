@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Carbon Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 6876,
+      "bodyTextHash": "85b6c373d761fca01c954c1ee1d164b64e866e85167ea5f72994e9eb24907192",
+      "bodyTextPrefix": "Carbon Ledger COUNTING · 16 NOV 2026, 18:56 UTC A live count of ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Carbon Ledger",
+      "hasCanvas": false,
+      "bodyTextLen": 6339,
+      "bodyTextHash": "deaf99fec55fa510a55aea954a16423a26cd8fb20c7781547e6781b2752d4092",
+      "bodyTextPrefix": "Carbon Ledger COUNTING · 16 NOV 2026, 18:56 UTC A live count of ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
