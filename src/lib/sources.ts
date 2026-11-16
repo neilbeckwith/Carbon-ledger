@@ -3,10 +3,11 @@
  * Citation copy is sourcing only. It does not replace a figure on the page.
  */
 
-export type SourceId = "gcp" | "noaa" | "ipcc" | "ice";
+export type SourceId = "gcp" | "ballantyne" | "noaa" | "ipcc" | "ice";
 
 export const SOURCE_LABEL: Record<SourceId, string> = {
   gcp: "GCP 2026 preprint",
+  ballantyne: "Ballantyne et al. 2012",
   noaa: "NOAA GML observations",
   ipcc: "IPCC AR6 WGI Ch5 assessment",
   ice: "ice-core paper",

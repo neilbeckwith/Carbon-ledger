@@ -666,7 +666,7 @@ export function LedgerApp() {
           mean 427.7 ppm. Ocean is held at the 2025 sink, 3.2 Gt C <Cite cite={CITE.ocean} />. Land is the
           residual, so it also absorbs the still-unpublished budget imbalance. Anchor concentration: NOAA Mauna
           Loa daily mean, 14 Nov 2026, 428.69 ppm <Cite cite={CITE.atmosphere} />. One ppm of the global mean is
-          taken as 2.124 Gt C <SourceMark id="noaa" />.
+          taken as 2.124 Gt C <SourceMark id="gcp" /> <SourceMark id="ballantyne" />.
         </p>
         <p>
           <strong>Splits.</strong> Coal versus gas, and the three pieces of land use, are partitions of

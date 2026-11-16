@@ -6,6 +6,7 @@
  */
 
 export const CO2_PER_C = 44 / 12;
+/** 1 ppm = 2.124 Gt C. Ballantyne et al. 2012; Friedlingstein et al. 2026, Table 1. */
 export const GTC_PER_PPM = 2.124;
 
 export const YEAR_START = Date.UTC(2026, 0, 1);

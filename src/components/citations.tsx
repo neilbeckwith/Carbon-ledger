@@ -43,6 +43,14 @@ export function Bibliography() {
           <a href="https://doi.org/10.5194/essd-2026-895">https://doi.org/10.5194/essd-2026-895</a>. Data: Global
           Carbon Project,{" "}
           <a href="https://doi.org/10.18160/GCP-2026">https://doi.org/10.18160/GCP-2026</a>.
+          States 1 ppm = 2.124 Gt C (Table 1).
+        </li>
+        <li id="bib-ballantyne">
+          <span className="bib-kind">{SOURCE_LABEL.ballantyne}.</span> Ballantyne, A. P., Alden, C. B., Miller,
+          J. B., Tans, P. P. &amp; White, J. W. C. (2012). Increase in observed net carbon dioxide uptake by
+          land and oceans during the past 50 years. Nature 488:70–72.{" "}
+          <a href="https://doi.org/10.1038/nature11299">https://doi.org/10.1038/nature11299</a>. States the
+          conversion factor 2.124 Pg C ppm⁻¹.
         </li>
         <li id="bib-noaa">
           <span className="bib-kind">{SOURCE_LABEL.noaa}.</span> NOAA Global Monitoring Laboratory. Trends in
